@@ -3,24 +3,25 @@
 int main()
 {
 	Game play;
-	List list;
-	Player player;
-	Map map;
+	Setting set;
 
 	play.removeCursor();
 	play.menu();
-	system("cls");
+	set.setLevel();
 
 	while (1)
 	{
-		play.loading();
 		system("cls");
-		player.startLocation();
-		while (1) 
-		{
-			map.generate();
-			player.move();
-		}
+		play.loading();
+
+		set.clear();
+		set.require();
+		set.starUp();
+		set.setRemain();
+		set.setSpeed();
+
+		system("cls");
+		play.game();
 	}
 	return 0;
 }

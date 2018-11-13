@@ -56,3 +56,11 @@ void Player::move()
 	printf("¢¾");
 }
 
+void Player::collisionCheck(Star star)
+{
+	if (abs(star.xpos - xpos) < 2 && star.ypos == ypos)
+	{
+		gameOver();
+		exit(1);
+	}
+}

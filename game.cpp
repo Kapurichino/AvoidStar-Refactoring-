@@ -71,7 +71,7 @@ void Game::gameOver()
 	gotoxy(xpos, ypos + 2); printf("▤  +-----------------------+   ▤");
 	gotoxy(xpos, ypos + 3); printf("▤  |  G A M E  O V E R..   |   ▤");
 	gotoxy(xpos, ypos + 4); printf("▤  +-----------------------+   ▤");
-	gotoxy(xpos, ypos + 5); printf("▤       Your Level = %2d        ▤", level - 1);
+	gotoxy(xpos, ypos + 5); printf("▤       Your Level = %2d        ▤", getLevel());
 	gotoxy(xpos, ypos + 6); printf("▤                              ▤");
 	gotoxy(xpos, ypos + 7); printf("▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤");
 	while (1)
@@ -107,26 +107,10 @@ void Game::loading()
 		y_2++;
 	}
 	gotoxy(9, 16); printf("[☆AVOID_STAR★]");
-	gotoxy(14, 18); printf("LEVEL %d", level);
+	gotoxy(14, 18); printf("LEVEL %d", getLevel());
 	gotoxy(11, 21); printf("게임 준비중..");
 	// 시간 지연 (1초 = 1000)
 	Sleep(5000);
-}
-
-int Game::getLevel()
-{
-	return level;
-}
-
-void Game::setLevel()
-{
-	level++;
-}
-
-int Game::require()
-{
-	need = 20 + level * 20;
-	return need;
 }
 
 void Game::setPos(int x, int y)
@@ -135,3 +119,60 @@ void Game::setPos(int x, int y)
 	this->ypos = y;
 }
 
+
+int Game::game()
+{
+	Player player;
+	Map map;
+	Star* star = new Star[starCount()];
+	List list;
+	for (int x = 0; x < starCount(); x++)
+		star[x].clear();
+	player.startLocation();
+
+	while (1)
+	{ 
+		Sleep(getSpeed());
+		system("cls");
+		map.generate();
+		player.move();
+		list.state();
+		for (int fall = 0; fall < starCount(); fall++)
+		{
+			if (star[fall].xpos >= 2)
+			{
+				if (star[fall].wait > 0)
+				{
+					// 대기시간 동안 아직 별을 떨어뜨리지 않는다.
+					star[fall].wait--;
+				}
+				else
+				{
+					// 별을 한칸 아래로 이동한다.
+					star[fall].ypos++;
+					// 별이 최하단에 도착 했을 때 처리.
+					if (star[fall].ypos >= 22)
+					{
+						star[fall].xpos = rand() % 27 + 1;
+						star[fall].ypos = 3;
+						setAvoid();    // 피한 별의 개수 카운트
+						setFallenStar(); //피한 총 별의 개수 카운트
+						setRemain();
+					}
+					// 별 출력
+					gotoxy(star[fall].xpos, star[fall].ypos);
+					star[fall].color();
+					printf("★");
+					player.collisionCheck(star[fall]);
+				}
+
+				if (getRemain() == 0)
+				{
+					setLevel();
+					return 0;
+				}
+			}
+		}
+	}
+	delete[] star;
+}
